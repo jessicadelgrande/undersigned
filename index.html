@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Write to the board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9EDF1; --sheet:#FFFFFF; --ink:#1B2430; --muted:#5A6472; --rule:#CBD3DC;
+  --accent:#23408E; --accent-ink:#FFFFFF; --accent-soft:#DCE3F4;
+  --fill:#FFF3BF; --fill-line:#B8901A; --danger:#A12A2A; --ok:#2E6B45;
+  --serif:"Literata", Georgia, "Times New Roman", serif;
+  --sans:"Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12161B; --sheet:#1C2229; --ink:#E4E8ED; --muted:#9AA5B2; --rule:#333D48;
+    --accent:#9DB4F5; --accent-ink:#0F1A33; --accent-soft:#25304A;
+    --fill:#3A3317; --fill-line:#D4AE3A; --danger:#F08A8A; --ok:#7CC79A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12161B; --sheet:#1C2229; --ink:#E4E8ED; --muted:#9AA5B2; --rule:#333D48;
+  --accent:#9DB4F5; --accent-ink:#0F1A33; --accent-soft:#25304A;
+  --fill:#3A3317; --fill-line:#D4AE3A; --danger:#F08A8A; --ok:#7CC79A;
+  color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:740px;margin:0 auto;padding:40px 20px 72px}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+[hidden]{display:none !important}
+
+.banner{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;
+  background:var(--accent-soft);color:var(--ink);padding:12px 16px;border-radius:6px;margin-bottom:28px;font-size:.92rem}
+.banner p{margin:0;max-width:52ch}
+
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.6vw,2.4rem);line-height:1.15;margin:0 0 12px;letter-spacing:-.01em;max-width:24ch}
+.intro{color:var(--muted);margin:0 0 28px;max-width:60ch;font-size:1.02rem}
+
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-radius:3px}
+.envelope{padding:18px 48px;border-bottom:1px solid var(--rule);font-size:.9rem;display:grid;grid-template-columns:auto 1fr;gap:6px 16px}
+.envelope dt{color:var(--muted)}
+.envelope dd{margin:0;overflow-wrap:anywhere}
+.letter{padding:36px 48px 44px;font-family:var(--serif);font-size:1.08rem;line-height:1.72}
+.letter p{margin:0 0 1.1em;white-space:pre-line}
+.letter p:last-child{margin-bottom:0}
+
+.fill{font:inherit;color:var(--ink);background:var(--fill);border:0;border-bottom:2px solid var(--fill-line);
+  padding:1px 6px;border-radius:2px 2px 0 0;min-width:10ch;max-width:100%}
+.fill::placeholder{color:var(--muted);font-style:italic}
+.fill.missing{border-bottom-color:var(--danger)}
+.note-block{margin:0 0 1.1em}
+.note-block label{display:block;font-family:var(--sans);font-size:.85rem;color:var(--muted);margin-bottom:4px}
+.note-block textarea{display:block;width:100%;min-height:5.2em;resize:vertical;line-height:1.6}
+
+.send{margin-top:28px}
+.send h2{font-family:var(--serif);font-weight:600;font-size:1.3rem;margin:0 0 6px}
+.send > p{margin:0 0 16px;color:var(--muted);max-width:60ch}
+.buttons{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:500 1rem/1.2 var(--sans);text-decoration:none;cursor:pointer;
+  padding:13px 20px;border-radius:6px;border:1.5px solid var(--accent);background:transparent;color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn[aria-disabled="true"]{opacity:.55}
+.btn.small{padding:8px 14px;font-size:.9rem}
+.linkish{background:none;border:0;padding:0;font:inherit;color:var(--accent);text-decoration:underline;cursor:pointer}
+.msg{margin:12px 0 0;font-size:.95rem}
+.msg.err{color:var(--danger)}
+.msg.ok{color:var(--ok)}
+.bccnote{font-size:.88rem;color:var(--muted);margin:14px 0 0;max-width:62ch}
+
+.after{margin-top:22px;padding:18px 20px;border-left:3px solid var(--accent);background:var(--sheet)}
+.after p{margin:0 0 12px;max-width:60ch}
+.copyrow{display:flex;flex-wrap:wrap;gap:8px}
+
+.foot{margin-top:48px;padding-top:18px;border-top:1px solid var(--rule);color:var(--muted);font-size:.92rem}
+
+/* setup */
+.setup h1{max-width:none}
+.field{margin:0 0 24px}
+.field label,.field .label{display:block;font-weight:600;margin-bottom:4px}
+.field .help{display:block;color:var(--muted);font-size:.9rem;margin:0 0 8px;max-width:62ch}
+.field input[type=text],.field input[type=email],.field textarea,.result input{
+  width:100%;font:inherit;color:var(--ink);background:var(--sheet);border:1.5px solid var(--rule);border-radius:5px;padding:10px 12px}
+.field textarea{resize:vertical;line-height:1.55}
+#f_body{font-family:var(--serif);font-size:1rem;min-height:24em;line-height:1.65}
+.field input:focus,.field textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.inserts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:600}
+.check input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--accent)}
+.sub{margin:10px 0 0 30px}
+.fielderr{color:var(--danger);font-size:.9rem;margin:6px 0 0}
+.result{margin-top:28px;padding:20px;background:var(--sheet);border:1px solid var(--rule);border-radius:5px}
+.result p{margin:0 0 10px}
+.result input{font-family:var(--sans);font-size:.9rem;margin-bottom:12px}
+.setuptop{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+
+@media (max-width:560px){
+  .wrap{padding:24px 14px 56px}
+  .envelope{padding:14px 20px}
+  .letter{padding:24px 20px 30px;font-size:1.02rem}
+  .btn{flex:1 1 100%}
+}
+@media (prefers-reduced-motion:no-preference){
+  .after{animation:rise .25s ease-out}
+  @keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <!-- SEND VIEW -->
+  <section id="sendView">
+    <div class="banner" id="demoBanner" hidden>
+      <p>This is an example letter for a made-up community centre, so you can see how it works before writing your own.</p>
+      <button class="btn small" type="button" data-go="setup">Write your own letter</button>
+    </div>
+    <div class="banner" id="previewBanner" hidden>
+      <p>This is a preview of what people will see when they open your link.</p>
+      <button class="btn small" type="button" data-go="setup-keep">Back to editing</button>
+    </div>
+    <div class="banner" id="badLinkBanner" hidden>
+      <p>This link seems to be incomplete, so the letter couldn’t be loaded. Ask whoever sent it to copy the whole link again.</p>
+    </div>
+
+    <h1 id="pageTitle"></h1>
+    <p class="intro" id="pageIntro"></p>
+
+    <article class="sheet" aria-label="The letter">
+      <dl class="envelope">
+        <dt>To</dt><dd id="toLine"></dd>
+        <dt>Subject</dt><dd id="subjectLine"></dd>
+      </dl>
+      <div class="letter" id="letterBody"></div>
+    </article>
+
+    <div class="send">
+      <h2>Send it from your own email</h2>
+      <p>Each button opens your email with the letter, the addresses and the subject already filled in, and nothing goes anywhere until you press send there yourself.</p>
+      <div class="buttons">
+        <a class="btn primary" id="mailBtn" href="#">Open in my email app</a>
+        <a class="btn" id="gmailBtn" href="#" target="_blank" rel="noopener">Open in Gmail</a>
+        <a class="btn" id="outlookBtn" href="#" target="_blank" rel="noopener">Open in Outlook.com</a>
+      </div>
+      <p class="msg err" id="nameErr" hidden>Add your name to the letter first, where it’s highlighted at the bottom.</p>
+      <p class="bccnote" id="bccNote" hidden></p>
+
+      <div class="after" id="after" hidden>
+        <p>Your email should now be open with the letter in it, ready for you to look over and send. If nothing opened, try one of the other buttons, or copy the pieces below into a new email yourself.</p>
+        <div class="copyrow">
+          <button class="btn small" type="button" data-copy="to">Copy addresses</button>
+          <button class="btn small" type="button" data-copy="subject">Copy subject</button>
+          <button class="btn small" type="button" data-copy="body">Copy letter</button>
+        </div>
+        <p class="msg ok" id="copyMsg" hidden></p>
+      </div>
+    </div>
+
+    <div class="foot" id="sendFoot">
+      Want to send a letter like this about something else? <button class="linkish" type="button" data-go="setup">Write your own and share it.</button>
+    </div>
+  </section>
+
+  <!-- SETUP VIEW -->
+  <section id="setupView" class="setup" hidden>
+    <div class="setuptop">
+      <h1>Write a letter for other people to send</h1>
+    </div>
+    <p class="intro">Write the letter once, add the addresses it should go to, and you’ll get a link to share; anyone who opens it only has to add their name and press send. Everything is carried inside the link itself, so there’s nothing to sign up for and nothing stored anywhere. <button class="linkish" type="button" id="loadExample">Fill this in with the example</button>.</p>
+
+    <form id="setupForm" novalidate>
+      <div class="field">
+        <label for="f_label">Who is the letter to?</label>
+        <span class="help">This finishes the heading people see, which begins “Write to …”.</span>
+        <input type="text" id="f_label" placeholder="the board of the Elsie Harrow Community Centre">
+      </div>
+
+      <div class="field">
+        <label for="f_intro">What should people know before they send it? <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <span class="help">A sentence or two of context, shown under the heading: what’s happening, and when.</span>
+        <textarea id="f_intro" rows="3"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="f_to">Email addresses to send to</label>
+        <span class="help">One per line, or separated by commas.</span>
+        <textarea id="f_to" rows="4" spellcheck="false" autocapitalize="off"></textarea>
+        <p class="fielderr" id="e_to" hidden></p>
+      </div>
+
+      <div class="field">
+        <label for="f_subject">Subject line</label>
+        <input type="text" id="f_subject">
+        <p class="fielderr" id="e_subject" hidden></p>
+      </div>
+
+      <div class="field">
+        <label for="f_body">The letter</label>
+        <span class="help">Put {name} where the sender’s name should go, and {note} on its own line where they can add a paragraph of their own. If they leave the paragraph empty it disappears from the letter, and if you’d rather nobody added anything, leave {note} out.</span>
+        <textarea id="f_body"></textarea>
+        <div class="inserts">
+          <button class="btn small" type="button" data-insert="{name}">Insert {name}</button>
+          <button class="btn small" type="button" data-insert="{note}">Insert {note}</button>
+        </div>
+        <p class="fielderr" id="e_body" hidden></p>
+      </div>
+
+      <div class="field">
+        <label class="check"><input type="checkbox" id="f_bcc_on"> Send me a hidden copy of every letter</label>
+        <span class="help" style="margin-left:30px">Off unless you turn it on. A hidden copy (BCC) to your address is the only way to know for certain how many letters were sent; each sender will see your address in their email before they send, and the page tells them it’s there.</span>
+        <div class="sub" id="bccWrap" hidden>
+          <input type="email" id="f_bcc" placeholder="you@example.com" autocapitalize="off" spellcheck="false">
+          <p class="fielderr" id="e_bcc" hidden></p>
+        </div>
+      </div>
+
+      <button class="btn primary" type="submit">Make the link</button>
+    </form>
+
+    <div class="result" id="result" hidden>
+      <p><strong>Here’s your link.</strong> Share it however you like; if you change the letter later, make a new link and share that one instead, since the old one will still carry the old letter.</p>
+      <input type="text" id="linkOut" readonly aria-label="Your link">
+      <div class="copyrow">
+        <button class="btn primary small" type="button" id="copyLink">Copy link</button>
+        <button class="btn small" type="button" id="previewBtn">Preview the page</button>
+      </div>
+      <p class="msg ok" id="linkMsg" hidden></p>
+    </div>
+
+    <div class="foot">
+      <button class="linkish" type="button" data-go="send">Back to the letter</button>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+"use strict";
+
+var DEMO = {
+  v:1,
+  label:"the board of the Elsie Harrow Community Centre",
+  intro:"On November 18 the board votes on whether to rename the centre and end its long relationship with the Harrow Fund, the charity that pays for its free programs. Add your name at the bottom, and a paragraph of your own if you like, and the letter will open in your email ready to send.",
+  to:["moduya@harrowcentre.example","dreyes@harrowcentre.example","pnandakumar@harrowcentre.example","tkessler@harrowcentre.example","abrodie@harrowcentre.example"],
+  subject:"Please keep the Elsie Harrow name, and the Harrow Fund with it",
+  body:"Dear members of the board,\n\nI’m writing about the proposal to rename the Elsie Harrow Community Centre and end its relationship with the Harrow Fund, and to ask you not to approve either at the November 18 meeting.\n\nThe name was never decoration: Elsie Harrow opened a free well-baby clinic in her front room on Carrick Street in 1961, and the centre grew out of that room, which is why so many of the families who use it now can tell you which grandmother or great-aunt first brought them through the door. A new name asks all of those people to start over with a building they already trust, and asks everyone arriving for the first time to trust a place that no longer says where it came from.\n\nThe Harrow Fund matters for plainer reasons. It pays for the after-school program, the subsidized seniors’ lunches on Tuesdays and Thursdays, and the bursaries that let kids go to summer camp, none of which room rentals or sponsorships are likely to cover at the same level, and a good share of what the Fund raises comes from people who give because the centre carries Elsie’s name. Separating the two risks losing the money and the reason people gave it at the same time.\n\nIf there is a financial case for the change, I’d like to see it, and I think the rest of the neighbourhood would too. I’m asking the board to postpone the vote, publish the reasoning and the numbers behind the proposal, and hold an open meeting before anything is decided.\n\n{note}\n\nThank you for your time, and for the work you already do for the centre.\n\nSincerely,\n{name}",
+  bcc:""
+};
+
+var campaign = DEMO, mode = "demo"; // demo | live | preview | bad
+var sender = {name:"", note:""};
+var $ = function(id){ return document.getElementById(id); };
+var EMAIL = /^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/;
+
+/* ---------- link encoding ---------- */
+function toB64u(bytes){
+  var s = ""; for (var i=0;i<bytes.length;i++) s += String.fromCharCode(bytes[i]);
+  return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function fromB64u(str){
+  str = str.replace(/-/g,"+").replace(/_/g,"/"); while (str.length % 4) str += "=";
+  var s = atob(str), out = new Uint8Array(s.length);
+  for (var i=0;i<s.length;i++) out[i] = s.charCodeAt(i);
+  return out;
+}
+async function encode(obj){
+  var bytes = new TextEncoder().encode(JSON.stringify(obj));
+  if (typeof CompressionStream === "function"){
+    try{
+      var stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"));
+      var buf = new Uint8Array(await new Response(stream).arrayBuffer());
+      return "z" + toB64u(buf);
+    }catch(e){}
+  }
+  return "j" + toB64u(bytes);
+}
+async function decode(code){
+  var kind = code.charAt(0), bytes = fromB64u(code.slice(1));
+  if (kind === "z"){
+    var stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+    bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+  } else if (kind !== "j") throw new Error("unknown");
+  var obj = JSON.parse(new TextDecoder().decode(bytes));
+  if (!obj || !Array.isArray(obj.to) || !obj.to.length || typeof obj.body !== "string") throw new Error("incomplete");
+  return {
+    v:1,
+    label:String(obj.label||"").slice(0,200),
+    intro:String(obj.intro||"").slice(0,1000),
+    to:obj.to.map(String).filter(function(e){return EMAIL.test(e);}).slice(0,50),
+    subject:String(obj.subject||"").slice(0,300),
+    body:obj.body.slice(0,12000),
+    bcc:EMAIL.test(obj.bcc||"") ? obj.bcc : ""
+  };
+}
+function readCode(){
+  var m = (location.hash||"").match(/[#&]c=([A-Za-z0-9_-]+)/) || (location.search||"").match(/[?&]c=([A-Za-z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+function baseUrl(){ return location.href.split("#")[0].split("?")[0]; }
+
+/* ---------- composing ---------- */
+function composeBody(){
+  var b = campaign.body;
+  var note = sender.note.trim();
+  if (note){ b = b.split("{note}").join(note); }
+  else { b = b.replace(/^[ \t]*\{note\}[ \t]*$/m, "").split("{note}").join(""); }
+  var name = sender.name.trim();
+  if (b.indexOf("{name}") !== -1) b = b.split("{name}").join(name);
+  else b = b.replace(/\s+$/,"") + "\n\n" + name;
+  return b.replace(/\n{3,}/g,"\n\n").trim();
+}
+function q(s){ return encodeURIComponent(s); }
+function hrefs(){
+  var body = composeBody(), to = campaign.to.join(","), bcc = campaign.bcc;
+  var mail = "mailto:" + to + "?subject=" + q(campaign.subject) + "&body=" + q(body.replace(/\n/g,"\r\n")) + (bcc ? "&bcc=" + q(bcc) : "");
+  var gmail = "https://mail.google.com/mail/?view=cm&fs=1&to=" + q(to) + "&su=" + q(campaign.subject) + "&body=" + q(body) + (bcc ? "&bcc=" + q(bcc) : "");
+  var outlook = "https://outlook.live.com/mail/0/deeplink/compose?to=" + q(to) + "&subject=" + q(campaign.subject) + "&body=" + q(body) + (bcc ? "&bcc=" + q(bcc) : "");
+  return {mail:mail, gmail:gmail, outlook:outlook, body:body};
+}
+function updateLinks(){
+  var h = hrefs(), ready = !!sender.name.trim();
+  [["mailBtn",h.mail],["gmailBtn",h.gmail],["outlookBtn",h.outlook]].forEach(function(p){
+    var a = $(p[0]); a.href = p[1]; a.setAttribute("aria-disabled", ready ? "false" : "true");
+  });
+  if (ready){ $("nameErr").hidden = true; var ni = $("senderName"); if (ni) ni.classList.remove("missing"); }
+}
+
+/* ---------- rendering the letter ---------- */
+function sizeName(input){ input.size = Math.max(12, (input.value||"").length + 2); }
+function makeNameInput(){
+  var i = document.createElement("input");
+  i.type = "text"; i.className = "fill"; i.id = "senderName";
+  i.placeholder = "Your name"; i.autocomplete = "name"; i.setAttribute("aria-label","Your name");
+  i.value = sender.name; sizeName(i);
+  i.addEventListener("input", function(){ sender.name = i.value; sizeName(i); updateLinks(); });
+  return i;
+}
+function grow(t){ t.style.height = "auto"; t.style.height = (t.scrollHeight + 4) + "px"; }
+function makeNoteBlock(){
+  var d = document.createElement("div"); d.className = "note-block";
+  var l = document.createElement("label"); l.htmlFor = "senderNote";
+  l.textContent = "A paragraph of your own, if you’d like to add one";
+  var t = document.createElement("textarea"); t.className = "fill"; t.id = "senderNote";
+  t.placeholder = "How you use the centre, what it has meant to you or your family, anything the board should hear from you directly.";
+  t.value = sender.note;
+  t.addEventListener("input", function(){ sender.note = t.value; grow(t); updateLinks(); });
+  d.append(l, t); requestAnimationFrame(function(){ grow(t); });
+  return d;
+}
+function makeInlineNote(){
+  var i = document.createElement("input"); i.type="text"; i.className="fill"; i.id="senderNote";
+  i.placeholder="your own words (optional)"; i.setAttribute("aria-label","Your own words, optional"); i.value = sender.note;
+  i.addEventListener("input", function(){ sender.note = i.value; updateLinks(); });
+  return i;
+}
+function renderLetter(){
+  var wrap = $("letterBody"); wrap.replaceChildren();
+  var hasName = false, hasNote = false;
+  campaign.body.split(/\n{2,}/).forEach(function(para){
+    if (para.trim() === "{note}"){
+      if (!hasNote){ wrap.append(makeNoteBlock()); hasNote = true; }
+      return;
+    }
+    var p = document.createElement("p");
+    para.split(/(\{name\}|\{note\})/).forEach(function(part){
+      if (part === "{name}" && !hasName){ p.append(makeNameInput()); hasName = true; }
+      else if (part === "{note}" && !hasNote){ p.append(makeInlineNote()); hasNote = true; }
+      else if (part !== "{name}" && part !== "{note}") p.append(document.createTextNode(part));
+    });
+    wrap.append(p);
+  });
+  if (!hasName){ var p = document.createElement("p"); p.append(makeNameInput()); wrap.append(p); }
+}
+function renderSend(){
+  $("demoBanner").hidden = mode !== "demo";
+  $("previewBanner").hidden = mode !== "preview";
+  $("badLinkBanner").hidden = mode !== "bad";
+  $("pageTitle").textContent = "Write to " + (campaign.label || "the board");
+  $("pageIntro").textContent = campaign.intro || "";
+  $("pageIntro").hidden = !campaign.intro;
+  $("toLine").textContent = campaign.to.join(", ");
+  $("subjectLine").textContent = campaign.subject;
+  var bn = $("bccNote");
+  if (campaign.bcc){
+    bn.hidden = false;
+    bn.textContent = "A hidden copy of your email will also go to " + campaign.bcc + ", the person who set up this letter, so they can count how many were sent. You can remove it in your email before sending if you’d rather not.";
+  } else bn.hidden = true;
+  $("after").hidden = true;
+  renderLetter(); updateLinks();
+}
+
+/* ---------- views ---------- */
+function show(view){
+  $("sendView").hidden = view !== "send";
+  $("setupView").hidden = view !== "setup";
+  window.scrollTo(0,0);
+}
+
+/* ---------- send interactions ---------- */
+["mailBtn","gmailBtn","outlookBtn"].forEach(function(id){
+  $(id).addEventListener("click", function(e){
+    if (!sender.name.trim()){
+      e.preventDefault();
+      $("nameErr").hidden = false;
+      var ni = $("senderName"); ni.classList.add("missing"); ni.focus();
+      ni.scrollIntoView({block:"center", behavior:"smooth"});
+      return;
+    }
+    $("after").hidden = false; $("copyMsg").hidden = true;
+  });
+});
+
+async function copyText(text){
+  try{ await navigator.clipboard.writeText(text); return true; }
+  catch(e){
+    var ta = document.createElement("textarea"); ta.value = text;
+    ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select();
+    var ok = false; try{ ok = document.execCommand("copy"); }catch(_){}
+    ta.remove(); return ok;
+  }
+}
+document.querySelectorAll("[data-copy]").forEach(function(b){
+  b.addEventListener("click", async function(){
+    var what = b.getAttribute("data-copy");
+    var text = what === "to" ? campaign.to.join(", ") : what === "subject" ? campaign.subject : composeBody();
+    var ok = await copyText(text), m = $("copyMsg");
+    m.hidden = false; m.className = "msg " + (ok ? "ok" : "err");
+    m.textContent = ok ? ({to:"Addresses copied.",subject:"Subject copied.",body:"Letter copied."})[what] : "Your browser blocked copying, so select the text on the page and copy it by hand.";
+  });
+});
+
+document.querySelectorAll("[data-go]").forEach(function(b){
+  b.addEventListener("click", function(){
+    var g = b.getAttribute("data-go");
+    if (g === "send"){ show("send"); }
+    else if (g === "setup-keep"){ show("setup"); }
+    else { $("result").hidden = true; show("setup"); }
+  });
+});
+
+/* ---------- setup ---------- */
+function fillForm(c){
+  $("f_label").value = c.label; $("f_intro").value = c.intro; $("f_to").value = c.to.join("\n");
+  $("f_subject").value = c.subject; $("f_body").value = c.body;
+  $("f_bcc_on").checked = !!c.bcc; $("f_bcc").value = c.bcc || ""; $("bccWrap").hidden = !c.bcc;
+}
+$("loadExample").addEventListener("click", function(){ fillForm(DEMO); $("result").hidden = true; });
+$("f_bcc_on").addEventListener("change", function(){
+  $("bccWrap").hidden = !this.checked; if (this.checked) $("f_bcc").focus();
+});
+document.querySelectorAll("[data-insert]").forEach(function(b){
+  b.addEventListener("click", function(){
+    var t = $("f_body"), tok = b.getAttribute("data-insert");
+    var s = t.selectionStart ?? t.value.length, e = t.selectionEnd ?? s;
+    if (tok === "{note}"){
+      var before = t.value.slice(0,s), after = t.value.slice(e);
+      var pre = before && !/\n\n$/.test(before) ? (/\n$/.test(before) ? "\n" : "\n\n") : "";
+      var post = after && !/^\n\n/.test(after) ? (/^\n/.test(after) ? "\n" : "\n\n") : "";
+      tok = pre + tok + post;
+    }
+    t.setRangeText(tok, s, e, "end"); t.focus();
+  });
+});
+function setErr(id, text){ var el = $(id); el.hidden = !text; el.textContent = text || ""; }
+
+var draft = null;
+$("setupForm").addEventListener("submit", async function(ev){
+  ev.preventDefault();
+  var raw = $("f_to").value.split(/[\s,;]+/).filter(Boolean);
+  var bad = raw.filter(function(e){ return !EMAIL.test(e); });
+  var subject = $("f_subject").value.trim(), body = $("f_body").value.replace(/\r\n/g,"\n").trim();
+  var bccOn = $("f_bcc_on").checked, bcc = $("f_bcc").value.trim();
+  var ok = true;
+  if (!raw.length){ setErr("e_to","Add at least one email address."); ok = false; }
+  else if (bad.length){ setErr("e_to", "These don’t look like email addresses: " + bad.join(", ")); ok = false; }
+  else setErr("e_to");
+  if (!subject){ setErr("e_subject","Add a subject line."); ok = false; } else setErr("e_subject");
+  if (!body){ setErr("e_body","Write the letter."); ok = false; }
+  else if ((body.match(/\{name\}/g)||[]).length > 1 || (body.match(/\{note\}/g)||[]).length > 1){ setErr("e_body","Use {name} and {note} once each."); ok = false; }
+  else setErr("e_body");
+  if (bccOn && !EMAIL.test(bcc)){ setErr("e_bcc","Add the address the hidden copies should go to."); ok = false; } else setErr("e_bcc");
+  if (!ok){ var first = document.querySelector(".fielderr:not([hidden])"); if (first) first.scrollIntoView({block:"center"}); return; }
+
+  draft = {
+    v:1, label:$("f_label").value.trim(), intro:$("f_intro").value.trim(),
+    to:Array.from(new Set(raw)), subject:subject, body:body, bcc: bccOn ? bcc : ""
+  };
+  var code = await encode(draft);
+  $("linkOut").value = baseUrl() + "#c=" + code;
+  $("result").hidden = false; $("linkMsg").hidden = true;
+  $("result").scrollIntoView({block:"nearest", behavior:"smooth"});
+});
+$("copyLink").addEventListener("click", async function(){
+  var ok = await copyText($("linkOut").value), m = $("linkMsg");
+  m.hidden = false; m.className = "msg " + (ok ? "ok" : "err");
+  m.textContent = ok ? "Link copied." : "Your browser blocked copying, so select the link above and copy it by hand.";
+});
+$("linkOut").addEventListener("focus", function(){ this.select(); });
+$("previewBtn").addEventListener("click", function(){
+  if (!draft) return;
+  campaign = draft; mode = "preview"; sender = {name:"", note:""};
+  renderSend(); show("send");
+});
+
+/* ---------- start ---------- */
+async function init(){
+  var code = readCode();
+  if (code){
+    try{ campaign = await decode(code); mode = "live"; }
+    catch(e){ campaign = DEMO; mode = "bad"; }
+  } else { campaign = DEMO; mode = "demo"; }
+  sender = {name:"", note:""};
+  renderSend(); show("send");
+}
+window.addEventListener("hashchange", init);
+init();
+})();
+</script>
+</body>
+</html>
