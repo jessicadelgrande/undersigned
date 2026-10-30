@@ -93,6 +93,11 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.6vw,2.4rem)
 .field input[type=text],.field input[type=email],.field textarea,.result input{
   width:100%;font:inherit;color:var(--ink);background:var(--sheet);border:1.5px solid var(--rule);border-radius:5px;padding:10px 12px}
 .field textarea{resize:vertical;line-height:1.55}
+.preview .envelope{padding:14px 28px}
+.preview .letter{padding:24px 28px 30px;font-size:1rem}
+.namebox{display:inline-block;background:var(--fill);border-bottom:2px solid var(--fill-line);padding:1px 8px;color:var(--muted);font-style:italic;border-radius:2px 2px 0 0}
+.preview .empty{color:var(--muted);font-style:italic}
+@media (max-width:560px){.preview .envelope{padding:12px 16px}.preview .letter{padding:18px 16px 22px}}
 #f_body{font-family:var(--serif);font-size:1rem;min-height:24em;line-height:1.65}
 .field input:focus,.field textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
 .inserts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
@@ -103,6 +108,13 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.6vw,2.4rem)
 .result{margin-top:28px;padding:20px;background:var(--sheet);border:1px solid var(--rule);border-radius:5px}
 .result p{margin:0 0 10px}
 .result input{font-family:var(--sans);font-size:.9rem;margin-bottom:12px}
+.topbar{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0 0 28px;padding-bottom:12px;border-bottom:1px solid var(--rule)}
+.wordmark{font-family:var(--serif);font-weight:600;font-size:1.05rem;letter-spacing:.01em}
+.topbar .linkish{font-size:.95rem}
+.about p{max-width:62ch;font-size:1.04rem;line-height:1.7;margin:0 0 1.1em}
+.about .back{margin-top:28px}
+.setup .intro + .intro{margin-top:-14px}
+.examples{margin:-12px 0 32px;font-size:.95rem;color:var(--muted)}
 .setuptop{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
 
 @media (max-width:560px){
@@ -116,22 +128,30 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.6vw,2.4rem)
   @keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 }
 </style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BVRGRQDVNS"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BVRGRQDVNS', { page_location: location.origin + location.pathname });
+</script>
 </head>
 <body>
 <main class="wrap">
+  <header class="topbar">
+    <span class="wordmark">Undersigned</span>
+    <button class="linkish" type="button" id="aboutLink">About Undersigned</button>
+  </header>
 
   <!-- SEND VIEW -->
   <section id="sendView">
     <div class="banner" id="demoBanner" hidden>
-      <p>This is an example letter for a made-up community centre, so you can see how it works before writing your own.</p>
-      <button class="btn small" type="button" data-go="setup">Write your own letter</button>
+      <p>This is the example letter, shown the way the people you share a link with will see it.</p>
+      <button class="btn small" type="button" data-go="setup-keep">Back to writing your own</button>
     </div>
     <div class="banner" id="previewBanner" hidden>
       <p>This is a preview of what people will see when they open your link.</p>
       <button class="btn small" type="button" data-go="setup-keep">Back to editing</button>
-    </div>
-    <div class="banner" id="badLinkBanner" hidden>
-      <p>This link seems to be incomplete, so the letter couldn’t be loaded. Ask whoever sent it to copy the whole link again.</p>
     </div>
 
     <h1 id="pageTitle"></h1>
@@ -147,7 +167,7 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.6vw,2.4rem)
 
     <div class="send">
       <h2>Send it from your own email</h2>
-      <p>Each button opens your email with the letter, the addresses and the subject already filled in, and nothing goes anywhere until you press send there yourself.</p>
+      <p>Each button opens a new email in your own account with the letter, the addresses and the subject already filled in. You can change anything you like there, or add a few lines of your own, and nothing is sent until you press send.</p>
       <div class="buttons">
         <a class="btn primary" id="mailBtn" href="#">Open in my email app</a>
         <a class="btn" id="gmailBtn" href="#" target="_blank" rel="noopener">Open in Gmail</a>
@@ -169,27 +189,35 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.6vw,2.4rem)
 
     <div class="foot" id="sendFoot">
       Want to send a letter like this about something else? <button class="linkish" type="button" data-go="setup">Write your own and share it.</button>
+      <br><span style="font-size:.85rem">This page uses Google Analytics to count visits and how many people open the letter in their email. Your name and anything you write stay on your device.</span>
     </div>
   </section>
 
   <!-- SETUP VIEW -->
   <section id="setupView" class="setup" hidden>
+    <div class="banner" id="badLinkBanner" hidden>
+      <p>This link seems to be incomplete, so the letter it was meant to open couldn’t be loaded. Ask whoever sent it to copy the whole link again and send it to you once more.</p>
+    </div>
     <div class="setuptop">
       <h1>Write a letter for other people to send</h1>
     </div>
-    <p class="intro">Write the letter once, add the addresses it should go to, and you’ll get a link to share; anyone who opens it only has to add their name and press send. Everything is carried inside the link itself, so there’s nothing to sign up for and nothing stored anywhere. <button class="linkish" type="button" id="loadExample">Fill this in with the example</button>.</p>
+    <p class="intro">Undersigned is a small app for community advocacy. One person writes a letter and adds the email addresses of the people who need to read it, then shares a link. Everyone who opens that link can send the same letter to the same people from their own email, with a few lines of their own if they want to add them.</p>
+    <p class="intro">Write your own letter below, and share the link with others who want to take action.</p>
+    <p class="examples"><button class="linkish" type="button" id="loadExample">Fill this in with the example</button> or <button class="linkish" type="button" id="previewExample">see the example as a sender would</button></p>
 
     <form id="setupForm" novalidate>
       <div class="field">
         <label for="f_label">Who is the letter to?</label>
         <span class="help">This finishes the heading people see, which begins “Write to …”.</span>
-        <input type="text" id="f_label" placeholder="the board of the Elsie Harrow Community Centre">
+        <input type="text" id="f_label" placeholder="your MP, or the board of your community centre">
+        <p class="fielderr" id="e_label" hidden></p>
       </div>
 
       <div class="field">
         <label for="f_intro">What should people know before they send it? <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
         <span class="help">A sentence or two of context, shown under the heading: what’s happening, and when.</span>
         <textarea id="f_intro" rows="3"></textarea>
+        <p class="fielderr" id="e_intro" hidden></p>
       </div>
 
       <div class="field">
@@ -207,13 +235,21 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.6vw,2.4rem)
 
       <div class="field">
         <label for="f_body">The letter</label>
-        <span class="help">Put {name} where the sender’s name should go, and {note} on its own line where they can add a paragraph of their own. If they leave the paragraph empty it disappears from the letter, and if you’d rather nobody added anything, leave {note} out.</span>
-        <textarea id="f_body"></textarea>
-        <div class="inserts">
-          <button class="btn small" type="button" data-insert="{name}">Insert {name}</button>
-          <button class="btn small" type="button" data-insert="{note}">Insert {note}</button>
-        </div>
+        <span class="help">Write the whole letter, from the greeting to the sign-off, and stop before your own name. Each person who sends it will add theirs, and it goes underneath.</span>
+        <textarea id="f_body" placeholder="Dear …"></textarea>
         <p class="fielderr" id="e_body" hidden></p>
+      </div>
+
+      <div class="field">
+        <span class="label">How it will look</span>
+        <span class="help">This is what people will see when they open your link, with a box for their name at the bottom.</span>
+        <div class="sheet preview" aria-live="off">
+          <dl class="envelope">
+            <dt>To</dt><dd id="pv_to"></dd>
+            <dt>Subject</dt><dd id="pv_subject"></dd>
+          </dl>
+          <div class="letter" id="pv_body"></div>
+        </div>
       </div>
 
       <div class="field">
@@ -238,9 +274,19 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.6vw,2.4rem)
       <p class="msg ok" id="linkMsg" hidden></p>
     </div>
 
-    <div class="foot">
-      <button class="linkish" type="button" data-go="send">Back to the letter</button>
+    <div class="foot" id="setupFoot" hidden>
+      <button class="linkish" type="button" data-go="send">Back to the letter you were sent</button>
     </div>
+  </section>
+
+  <!-- ABOUT VIEW -->
+  <section id="aboutView" class="about" hidden>
+    <h1>About Undersigned</h1>
+    <p>Undersigned is a small app for community advocacy. One person writes a letter and adds the email addresses of the people who need to read it, then shares a link, and everyone who opens that link can send the same letter to the same people from their own email, with a few lines of their own if they want to add them.</p>
+    <p>It started with a group of seniors who all wanted to speak up about changes in their community and had very different levels of comfort with technology, some happy to follow the instructions on a form, others for whom copying and pasting was where things went wrong. The question was how to make civic action possible for people with limited time and little interest in learning new technology, which in practice meant a list of things they shouldn’t have to do: sign up for another platform, keep track of another login, put their name to an official petition when all they wanted was to send a letter, or copy and paste the text and addresses themselves, which is how a letter loses a paragraph, or misses the one board member who most needed to read it.</p>
+    <p>So instead of asking everyone to join a civic action platform, one person writes the letter, collects the addresses of the officials who need to receive it, and shares a link that does the rest, filling in the letter, the recipients and the subject in each person’s own email so that all they have left to do is add their name and press send. Everyone writes to the same people, nobody who needs the message is missed, and each letter arrives as an individual writing in rather than one more name on a petition, whether it’s going to an MP or MPP, a school board, the board of a community centre or anyone else who makes decisions about something you care about.</p>
+    <p>Nothing is stored anywhere and there’s no sign-up, because the letter travels inside the link itself.</p>
+    <p class="back"><button class="btn small" type="button" id="aboutBack">Back</button></p>
   </section>
 </main>
 
@@ -250,11 +296,11 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.6vw,2.4rem)
 
 var DEMO = {
   v:1,
-  label:"the board of the Elsie Harrow Community Centre",
-  intro:"On November 18 the board votes on whether to rename the centre and end its long relationship with the Harrow Fund, the charity that pays for its free programs. Add your name at the bottom, and a paragraph of your own if you like, and the letter will open in your email ready to send.",
-  to:["moduya@harrowcentre.example","dreyes@harrowcentre.example","pnandakumar@harrowcentre.example","tkessler@harrowcentre.example","abrodie@harrowcentre.example"],
-  subject:"Please keep the Elsie Harrow name, and the Harrow Fund with it",
-  body:"Dear members of the board,\n\nI’m writing about the proposal to rename the Elsie Harrow Community Centre and end its relationship with the Harrow Fund, and to ask you not to approve either at the November 18 meeting.\n\nThe name was never decoration: Elsie Harrow opened a free well-baby clinic in her front room on Carrick Street in 1961, and the centre grew out of that room, which is why so many of the families who use it now can tell you which grandmother or great-aunt first brought them through the door. A new name asks all of those people to start over with a building they already trust, and asks everyone arriving for the first time to trust a place that no longer says where it came from.\n\nThe Harrow Fund matters for plainer reasons. It pays for the after-school program, the subsidized seniors’ lunches on Tuesdays and Thursdays, and the bursaries that let kids go to summer camp, none of which room rentals or sponsorships are likely to cover at the same level, and a good share of what the Fund raises comes from people who give because the centre carries Elsie’s name. Separating the two risks losing the money and the reason people gave it at the same time.\n\nIf there is a financial case for the change, I’d like to see it, and I think the rest of the neighbourhood would too. I’m asking the board to postpone the vote, publish the reasoning and the numbers behind the proposal, and hold an open meeting before anything is decided.\n\n{note}\n\nThank you for your time, and for the work you already do for the centre.\n\nSincerely,\n{name}",
+  label:"[the person or group you’re writing to]",
+  intro:"Add your name at the bottom and the letter will open in your email, ready to send. You can change anything in it there, or add a few lines of your own, before you send it.",
+  to:["representative@example.org","office@example.org"],
+  subject:"A note about [the issue]",
+  body:"Dear [name or title],\n\nI’m writing as someone who lives in [your community] to share a concern about [the issue], and to ask you to [what you’d like them to do].\n\nI know decisions like this involve more than one point of view, and I appreciate the time you give to hearing from the people they affect. For many of us, [the issue] matters because [the reason, in a sentence or two], and I hope that will be part of what you weigh as this moves forward.\n\nI’d be grateful if you would [the specific request, such as meeting with residents, postponing a decision or sharing more information], and I’d welcome hearing how you plan to approach it.\n\nThank you for reading this, and for the work you do on our behalf.\n\nWarm regards,",
   bcc:""
 };
 
@@ -317,7 +363,7 @@ function composeBody(){
   else { b = b.replace(/^[ \t]*\{note\}[ \t]*$/m, "").split("{note}").join(""); }
   var name = sender.name.trim();
   if (b.indexOf("{name}") !== -1) b = b.split("{name}").join(name);
-  else b = b.replace(/\s+$/,"") + "\n\n" + name;
+  else b = b.replace(/\s+$/,"") + "\n" + name;
   return b.replace(/\n{3,}/g,"\n\n").trim();
 }
 function q(s){ return encodeURIComponent(s); }
@@ -366,26 +412,27 @@ function makeInlineNote(){
 }
 function renderLetter(){
   var wrap = $("letterBody"); wrap.replaceChildren();
-  var hasName = false, hasNote = false;
+  var hasName = false;
   campaign.body.split(/\n{2,}/).forEach(function(para){
-    if (para.trim() === "{note}"){
-      if (!hasNote){ wrap.append(makeNoteBlock()); hasNote = true; }
-      return;
-    }
+    para = para.replace(/\{note\}/g, "");
+    if (!para.trim()) return;
     var p = document.createElement("p");
-    para.split(/(\{name\}|\{note\})/).forEach(function(part){
-      if (part === "{name}" && !hasName){ p.append(makeNameInput()); hasName = true; }
-      else if (part === "{note}" && !hasNote){ p.append(makeInlineNote()); hasNote = true; }
-      else if (part !== "{name}" && part !== "{note}") p.append(document.createTextNode(part));
+    para.split(/(\{name\})/).forEach(function(part){
+      if (part === "{name}"){ if (!hasName){ p.append(makeNameInput()); hasName = true; } }
+      else p.append(document.createTextNode(part));
     });
     wrap.append(p);
   });
-  if (!hasName){ var p = document.createElement("p"); p.append(makeNameInput()); wrap.append(p); }
+  if (!hasName){
+    var last = wrap.lastElementChild;
+    if (!last){ last = document.createElement("p"); wrap.append(last); }
+    else last.append(document.createTextNode("\n"));
+    last.append(makeNameInput());
+  }
 }
 function renderSend(){
   $("demoBanner").hidden = mode !== "demo";
   $("previewBanner").hidden = mode !== "preview";
-  $("badLinkBanner").hidden = mode !== "bad";
   $("pageTitle").textContent = "Write to " + (campaign.label || "the board");
   $("pageIntro").textContent = campaign.intro || "";
   $("pageIntro").hidden = !campaign.intro;
@@ -401,11 +448,19 @@ function renderSend(){
 }
 
 /* ---------- views ---------- */
+var current = "setup", beforeAbout = "setup", liveCampaign = null;
 function show(view){
+  if (view === "about" && current !== "about") beforeAbout = current;
+  if (view === "send" && mode !== "preview" && mode !== "demo" && liveCampaign && campaign !== liveCampaign){ campaign = liveCampaign; mode = "live"; renderSend(); }
+  current = view;
   $("sendView").hidden = view !== "send";
   $("setupView").hidden = view !== "setup";
+  $("aboutView").hidden = view !== "about";
+  $("setupFoot").hidden = !liveCampaign;
   window.scrollTo(0,0);
 }
+$("aboutLink").addEventListener("click", function(){ show("about"); });
+$("aboutBack").addEventListener("click", function(){ show(beforeAbout); });
 
 /* ---------- send interactions ---------- */
 ["mailBtn","gmailBtn","outlookBtn"].forEach(function(id){
@@ -418,6 +473,7 @@ function show(view){
       return;
     }
     $("after").hidden = false; $("copyMsg").hidden = true;
+    if (window.gtag) gtag('event', 'open_email', { method: id.replace('Btn',''), letter: campaign.subject.slice(0,100) });
   });
 });
 
@@ -443,7 +499,7 @@ document.querySelectorAll("[data-copy]").forEach(function(b){
 document.querySelectorAll("[data-go]").forEach(function(b){
   b.addEventListener("click", function(){
     var g = b.getAttribute("data-go");
-    if (g === "send"){ show("send"); }
+    if (g === "send"){ if (liveCampaign){ campaign = liveCampaign; mode = "live"; renderSend(); } show("send"); }
     else if (g === "setup-keep"){ show("setup"); }
     else { $("result").hidden = true; show("setup"); }
   });
@@ -454,24 +510,37 @@ function fillForm(c){
   $("f_label").value = c.label; $("f_intro").value = c.intro; $("f_to").value = c.to.join("\n");
   $("f_subject").value = c.subject; $("f_body").value = c.body;
   $("f_bcc_on").checked = !!c.bcc; $("f_bcc").value = c.bcc || ""; $("bccWrap").hidden = !c.bcc;
+  renderPreview();
 }
 $("loadExample").addEventListener("click", function(){ fillForm(DEMO); $("result").hidden = true; });
+$("previewExample").addEventListener("click", function(){
+  campaign = DEMO; mode = "demo"; sender = {name:"", note:""};
+  renderSend(); show("send");
+});
 $("f_bcc_on").addEventListener("change", function(){
   $("bccWrap").hidden = !this.checked; if (this.checked) $("f_bcc").focus();
 });
-document.querySelectorAll("[data-insert]").forEach(function(b){
-  b.addEventListener("click", function(){
-    var t = $("f_body"), tok = b.getAttribute("data-insert");
-    var s = t.selectionStart ?? t.value.length, e = t.selectionEnd ?? s;
-    if (tok === "{note}"){
-      var before = t.value.slice(0,s), after = t.value.slice(e);
-      var pre = before && !/\n\n$/.test(before) ? (/\n$/.test(before) ? "\n" : "\n\n") : "";
-      var post = after && !/^\n\n/.test(after) ? (/^\n/.test(after) ? "\n" : "\n\n") : "";
-      tok = pre + tok + post;
-    }
-    t.setRangeText(tok, s, e, "end"); t.focus();
+function renderPreview(){
+  var raw = $("f_to").value.split(/[\s,;]+/).filter(Boolean);
+  $("pv_to").textContent = raw.length ? raw.join(", ") : "";
+  $("pv_subject").textContent = $("f_subject").value.trim();
+  var wrap = $("pv_body"); wrap.replaceChildren();
+  var body = $("f_body").value.replace(/\r\n/g,"\n").trim();
+  if (!body){
+    var e = document.createElement("p"); e.className = "empty";
+    e.textContent = "Your letter will appear here as you write it.";
+    wrap.append(e); return;
+  }
+  body.split(/\n{2,}/).forEach(function(para){
+    var p = document.createElement("p"); p.textContent = para; wrap.append(p);
   });
-});
+  var box = document.createElement("span");
+  box.className = "namebox"; box.textContent = "Their name";
+  wrap.lastElementChild.append(document.createTextNode("\n"), box);
+}
+["f_to","f_subject","f_body"].forEach(function(id){ $(id).addEventListener("input", renderPreview); });
+renderPreview();
+
 function setErr(id, text){ var el = $(id); el.hidden = !text; el.textContent = text || ""; }
 
 var draft = null;
@@ -486,9 +555,14 @@ $("setupForm").addEventListener("submit", async function(ev){
   else if (bad.length){ setErr("e_to", "These don’t look like email addresses: " + bad.join(", ")); ok = false; }
   else setErr("e_to");
   if (!subject){ setErr("e_subject","Add a subject line."); ok = false; } else setErr("e_subject");
+  var BR = /\[[^\]\n]*\]/;
+  var leftover = "Some parts are still in [square brackets] from the example. Replace them with your own words before making your link.";
   if (!body){ setErr("e_body","Write the letter."); ok = false; }
-  else if ((body.match(/\{name\}/g)||[]).length > 1 || (body.match(/\{note\}/g)||[]).length > 1){ setErr("e_body","Use {name} and {note} once each."); ok = false; }
+  else if (BR.test(body)){ setErr("e_body", leftover); ok = false; }
   else setErr("e_body");
+  if (subject && BR.test(subject)){ setErr("e_subject", leftover); ok = false; }
+  if (BR.test($("f_label").value)){ setErr("e_label", leftover); ok = false; } else setErr("e_label");
+  if (BR.test($("f_intro").value)){ setErr("e_intro", leftover); ok = false; } else setErr("e_intro");
   if (bccOn && !EMAIL.test(bcc)){ setErr("e_bcc","Add the address the hidden copies should go to."); ok = false; } else setErr("e_bcc");
   if (!ok){ var first = document.querySelector(".fielderr:not([hidden])"); if (first) first.scrollIntoView({block:"center"}); return; }
 
@@ -499,10 +573,12 @@ $("setupForm").addEventListener("submit", async function(ev){
   var code = await encode(draft);
   $("linkOut").value = baseUrl() + "#c=" + code;
   $("result").hidden = false; $("linkMsg").hidden = true;
+  if (window.gtag) gtag('event', 'make_link', { letter: draft.subject.slice(0,100), bcc_used: draft.bcc ? 'yes' : 'no' });
   $("result").scrollIntoView({block:"nearest", behavior:"smooth"});
 });
 $("copyLink").addEventListener("click", async function(){
   var ok = await copyText($("linkOut").value), m = $("linkMsg");
+  if (window.gtag && draft) gtag('event', 'copy_link', { letter: draft.subject.slice(0,100), copied: ok ? 'yes' : 'no' });
   m.hidden = false; m.className = "msg " + (ok ? "ok" : "err");
   m.textContent = ok ? "Link copied." : "Your browser blocked copying, so select the link above and copy it by hand.";
 });
@@ -516,12 +592,13 @@ $("previewBtn").addEventListener("click", function(){
 /* ---------- start ---------- */
 async function init(){
   var code = readCode();
-  if (code){
-    try{ campaign = await decode(code); mode = "live"; }
-    catch(e){ campaign = DEMO; mode = "bad"; }
-  } else { campaign = DEMO; mode = "demo"; }
   sender = {name:"", note:""};
-  renderSend(); show("send");
+  liveCampaign = null; $("badLinkBanner").hidden = true;
+  if (code){
+    try{ campaign = await decode(code); mode = "live"; liveCampaign = campaign; renderSend(); show("send"); return; }
+    catch(e){ $("badLinkBanner").hidden = false; }
+  }
+  campaign = DEMO; mode = "setup"; renderSend(); show("setup");
 }
 window.addEventListener("hashchange", init);
 init();
