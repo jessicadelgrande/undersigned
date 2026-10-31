@@ -98,7 +98,26 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.6vw,2.4rem)
 .namebox{display:inline-block;background:var(--fill);border-bottom:2px solid var(--fill-line);padding:1px 8px;color:var(--muted);font-style:italic;border-radius:2px 2px 0 0}
 .preview .empty{color:var(--muted);font-style:italic}
 @media (max-width:560px){.preview .envelope{padding:12px 16px}.preview .letter{padding:18px 16px 22px}}
-#f_body{font-family:var(--serif);font-size:1rem;min-height:24em;line-height:1.65}
+.compose{overflow:hidden}
+.compose:focus-within{border-color:var(--accent)}
+.crow{display:flex;align-items:flex-start;gap:12px;padding:10px 28px;border-bottom:1px solid var(--rule)}
+.crow:focus-within{box-shadow:inset 0 -2px 0 var(--accent)}
+.crow > label{flex:0 0 4.2em;color:var(--muted);font-size:.92rem;padding-top:7px;font-weight:400;margin:0}
+.crow input,.crow textarea{flex:1;min-width:0;font:inherit;font-size:.98rem;color:var(--ink);background:transparent;border:0;padding:6px 0;resize:none;line-height:1.45}
+.compose .crow input,.compose .crow textarea{width:auto;border:0;border-radius:0;background:transparent;padding:6px 0;box-shadow:none}
+.compose .crow input:focus,.compose .crow textarea:focus,.compose .cbody textarea:focus{outline:none;box-shadow:none;border:0}
+.crow .linkish{flex:0 0 auto;font-size:.9rem;padding-top:7px}
+.crow + .fielderr,.crow + .fielderr + .fielderr{margin:0;padding:6px 28px;border-bottom:1px solid var(--rule)}
+.rownote{margin:0;padding:6px 28px 10px;font-size:.86rem;color:var(--muted);border-bottom:1px solid var(--rule)}
+.cbody{padding:22px 28px 30px}
+#f_body:placeholder-shown{min-height:12em !important}
+#f_body{display:block;width:100%;min-height:3em;border:0;background:transparent;color:var(--ink);resize:none;
+  font-family:var(--serif);font-size:1.04rem;line-height:1.72;padding:0;overflow:hidden}
+#f_body::placeholder,.crow input::placeholder,.crow textarea::placeholder{color:var(--muted)}
+.cbody .namebox{margin-top:2px}
+.cbody .fielderr{margin-top:14px}
+.aftersheet{color:var(--muted);font-size:.9rem;margin:10px 0 0;max-width:62ch}
+@media (max-width:560px){.crow{padding:8px 16px}.crow + .fielderr,.rownote{padding-left:16px;padding-right:16px}.cbody{padding:18px 16px 22px}}
 .field input:focus,.field textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
 .inserts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .check{display:flex;gap:10px;align-items:flex-start;font-weight:600}
@@ -222,44 +241,32 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,4.6vw,2.4rem)
       </div>
 
       <div class="field">
-        <label for="f_to">Email addresses to send to</label>
-        <span class="help">One per line, or separated by commas.</span>
-        <textarea id="f_to" rows="4" spellcheck="false" autocapitalize="off"></textarea>
-        <p class="fielderr" id="e_to" hidden></p>
-      </div>
-
-      <div class="field">
-        <label for="f_subject">Subject line</label>
-        <input type="text" id="f_subject">
-        <p class="fielderr" id="e_subject" hidden></p>
-      </div>
-
-      <div class="field">
-        <label for="f_body">The letter</label>
-        <span class="help">Write the whole letter, from the greeting to the sign-off, and stop before your own name. Each person who sends it will add theirs, and it goes underneath.</span>
-        <textarea id="f_body" placeholder="Dear …"></textarea>
-        <p class="fielderr" id="e_body" hidden></p>
-      </div>
-
-      <div class="field">
-        <span class="label">How it will look</span>
-        <span class="help">This is what people will see when they open your link, with a box for their name at the bottom.</span>
-        <div class="sheet preview" aria-live="off">
-          <dl class="envelope">
-            <dt>To</dt><dd id="pv_to"></dd>
-            <dt>Subject</dt><dd id="pv_subject"></dd>
-          </dl>
-          <div class="letter" id="pv_body"></div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="check"><input type="checkbox" id="f_bcc_on"> Send me a hidden copy of every letter</label>
-        <span class="help" style="margin-left:30px">Off unless you turn it on. A hidden copy (BCC) to your address is the only way to know for certain how many letters were sent; each sender will see your address in their email before they send, and the page tells them it’s there.</span>
-        <div class="sub" id="bccWrap" hidden>
-          <input type="email" id="f_bcc" placeholder="you@example.com" autocapitalize="off" spellcheck="false">
+        <div class="sheet compose">
+          <div class="crow">
+            <label for="f_to">To</label>
+            <textarea id="f_to" rows="1" placeholder="Their email addresses, separated by commas" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+            <button class="linkish" type="button" id="addBcc">Bcc</button>
+          </div>
+          <p class="fielderr" id="e_to" hidden></p>
+          <div class="crow" id="bccRow" hidden>
+            <label for="f_bcc">Bcc</label>
+            <input type="email" id="f_bcc" placeholder="Your email address" autocapitalize="off" spellcheck="false">
+            <button class="linkish" type="button" id="removeBcc">Remove</button>
+          </div>
           <p class="fielderr" id="e_bcc" hidden></p>
+          <p class="rownote" id="bccNoteSetup" hidden>A hidden copy to you is the only way to know for certain how many letters were sent. Each sender will see your address in their email before they send, and the page tells them it’s there.</p>
+          <div class="crow">
+            <label for="f_subject">Subject</label>
+            <input type="text" id="f_subject" placeholder="Subject">
+          </div>
+          <p class="fielderr" id="e_subject" hidden></p>
+          <div class="cbody">
+            <textarea id="f_body" placeholder="Dear …" aria-label="The letter"></textarea>
+            <span class="namebox" aria-hidden="true">Their name</span>
+            <p class="fielderr" id="e_body" hidden></p>
+          </div>
         </div>
+        <p class="aftersheet">Stop before your own name. Each person who sends the letter adds theirs where it’s highlighted, and can change anything in their own email before sending.</p>
       </div>
 
       <button class="btn primary" type="submit">Make the link</button>
@@ -563,39 +570,26 @@ document.querySelectorAll("[data-go]").forEach(function(b){
 
 /* ---------- setup ---------- */
 function fillForm(c){
-  $("f_label").value = c.label; $("f_intro").value = c.intro; $("f_to").value = c.to.join("\n");
+  $("f_label").value = c.label; $("f_intro").value = c.intro; $("f_to").value = c.to.join(", ");
   $("f_subject").value = c.subject; $("f_body").value = c.body;
-  $("f_bcc_on").checked = !!c.bcc; $("f_bcc").value = c.bcc || ""; $("bccWrap").hidden = !c.bcc;
-  renderPreview();
+  $("f_bcc").value = c.bcc || ""; setBcc(!!c.bcc, false);
+  growAll();
 }
 $("loadExample").addEventListener("click", function(){ fillForm(DEMO); $("result").hidden = true; });
 $("previewExample").addEventListener("click", function(){
   campaign = DEMO; mode = "demo"; sender = {name:"", note:""};
   renderSend(); show("send");
 });
-$("f_bcc_on").addEventListener("change", function(){
-  $("bccWrap").hidden = !this.checked; if (this.checked) $("f_bcc").focus();
-});
-function renderPreview(){
-  var raw = $("f_to").value.split(/[\s,;]+/).filter(Boolean);
-  $("pv_to").textContent = raw.length ? raw.join(", ") : "";
-  $("pv_subject").textContent = $("f_subject").value.trim();
-  var wrap = $("pv_body"); wrap.replaceChildren();
-  var body = $("f_body").value.replace(/\r\n/g,"\n").trim();
-  if (!body){
-    var e = document.createElement("p"); e.className = "empty";
-    e.textContent = "Your letter will appear here as you write it.";
-    wrap.append(e); return;
-  }
-  body.split(/\n{2,}/).forEach(function(para){
-    var p = document.createElement("p"); p.textContent = para; wrap.append(p);
-  });
-  var box = document.createElement("span");
-  box.className = "namebox"; box.textContent = "Their name";
-  wrap.lastElementChild.append(document.createTextNode("\n"), box);
+function setBcc(on, focus){
+  $("bccRow").hidden = !on; $("bccNoteSetup").hidden = !on; $("addBcc").hidden = on;
+  if (!on){ $("f_bcc").value = ""; setErr("e_bcc"); }
+  if (on && focus) $("f_bcc").focus();
 }
-["f_to","f_subject","f_body"].forEach(function(id){ $(id).addEventListener("input", renderPreview); });
-renderPreview();
+$("addBcc").addEventListener("click", function(){ setBcc(true, true); });
+$("removeBcc").addEventListener("click", function(){ setBcc(false); $("f_to").focus(); });
+function growAll(){ grow($("f_to")); grow($("f_body")); }
+["f_to","f_body"].forEach(function(id){ $(id).addEventListener("input", function(){ grow(this); }); });
+window.addEventListener("resize", growAll);
 
 function setErr(id, text){ var el = $(id); el.hidden = !text; el.textContent = text || ""; }
 
@@ -605,7 +599,7 @@ $("setupForm").addEventListener("submit", async function(ev){
   var raw = $("f_to").value.split(/[\s,;]+/).filter(Boolean);
   var bad = raw.filter(function(e){ return !EMAIL.test(e); });
   var subject = $("f_subject").value.trim(), body = $("f_body").value.replace(/\r\n/g,"\n").trim();
-  var bccOn = $("f_bcc_on").checked, bcc = $("f_bcc").value.trim();
+  var bccOn = !$("bccRow").hidden, bcc = $("f_bcc").value.trim();
   var ok = true;
   if (!raw.length){ setErr("e_to","Add at least one email address."); ok = false; }
   else if (bad.length){ setErr("e_to", "These don’t look like email addresses: " + bad.join(", ")); ok = false; }
