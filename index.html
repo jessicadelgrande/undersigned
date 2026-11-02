@@ -15,18 +15,18 @@
 		/>
 		<style>
 			:root {
-				--bg: #e9edf1;
+				--bg: #eef1f4;
 				--sheet: #ffffff;
-				--ink: #1b2430;
-				--muted: #5a6472;
-				--rule: #cbd3dc;
-				--accent: #23408e;
+				--ink: #111821;
+				--muted: #3b4451;
+				--rule: #8c96a3;
+				--accent: #1e3a82;
 				--accent-ink: #ffffff;
-				--accent-soft: #dce3f4;
-				--fill: #fff3bf;
-				--fill-line: #b8901a;
-				--danger: #a12a2a;
-				--ok: #2e6b45;
+				--accent-soft: #dfe6f5;
+				--fill: #fff1b3;
+				--fill-line: #8a6a00;
+				--danger: #8b1c1c;
+				--ok: #1d5232;
 				--serif: "Literata", Georgia, "Times New Roman", serif;
 				--sans:
 					"Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial,
@@ -38,34 +38,34 @@
 			}
 			@media (prefers-color-scheme: dark) {
 				:root:not([data-theme="light"]) {
-					--bg: #12161b;
-					--sheet: #1c2229;
-					--ink: #e4e8ed;
-					--muted: #9aa5b2;
-					--rule: #333d48;
-					--accent: #9db4f5;
-					--accent-ink: #0f1a33;
-					--accent-soft: #25304a;
+					--bg: #0e1115;
+					--sheet: #171c22;
+					--ink: #f2f4f7;
+					--muted: #c3cbd5;
+					--rule: #6b7684;
+					--accent: #afc2fa;
+					--accent-ink: #0b142b;
+					--accent-soft: #222c45;
 					--fill: #3a3317;
-					--fill-line: #d4ae3a;
-					--danger: #f08a8a;
-					--ok: #7cc79a;
+					--fill-line: #e0b940;
+					--danger: #ffa3a3;
+					--ok: #8edbae;
 					color-scheme: dark;
 				}
 			}
 			:root[data-theme="dark"] {
-				--bg: #12161b;
-				--sheet: #1c2229;
-				--ink: #e4e8ed;
-				--muted: #9aa5b2;
-				--rule: #333d48;
-				--accent: #9db4f5;
-				--accent-ink: #0f1a33;
-				--accent-soft: #25304a;
+				--bg: #0e1115;
+				--sheet: #171c22;
+				--ink: #f2f4f7;
+				--muted: #c3cbd5;
+				--rule: #6b7684;
+				--accent: #afc2fa;
+				--accent-ink: #0b142b;
+				--accent-soft: #222c45;
 				--fill: #3a3317;
-				--fill-line: #d4ae3a;
-				--danger: #f08a8a;
-				--ok: #7cc79a;
+				--fill-line: #e0b940;
+				--danger: #ffa3a3;
+				--ok: #8edbae;
 				color-scheme: dark;
 			}
 			html {
@@ -243,7 +243,7 @@
 				color: var(--accent-ink);
 			}
 			.btn[aria-disabled="true"] {
-				opacity: 0.55;
+				opacity: 1;
 			}
 			.btn.small {
 				padding: 8px 14px;
@@ -655,6 +655,20 @@
 						Back to editing
 					</button>
 				</div>
+				<div class="result" id="previewResult" hidden style="margin: 0 0 32px">
+					<p>
+						<strong>Here’s your link.</strong> Share it however you like; if you
+						change the letter later, make a new link and share that one instead,
+						since the old one will still carry the old letter.
+					</p>
+					<input type="text" id="linkOut2" readonly aria-label="Your link" />
+					<div class="copyrow">
+						<button class="btn primary small" type="button" id="copyLink2">
+							Copy link
+						</button>
+					</div>
+					<p class="msg ok" id="linkMsg2" hidden></p>
+				</div>
 
 				<h1 id="pageTitle"></h1>
 				<p class="intro" id="pageIntro"></p>
@@ -743,21 +757,24 @@
 					</p>
 				</div>
 				<div class="setuptop">
-					<h1>Help your community speak up.</h1>
+					<h1>Write a letter for other people to send</h1>
 				</div>
 				<p class="intro">
-					Write a letter, add the people who need to receive it, and share a
-					link. Everyone who opens the link can send the letter from their own
-					email, with the option to personalize it before sending.
+					Undersigned is a small app for community advocacy. One person writes a
+					letter and adds the email addresses of the people who need to read it,
+					then shares a link. Everyone who opens that link can send the same
+					letter to the same people from their own email, with a few lines of
+					their own if they want to add them.
+				</p>
+				<p class="intro">
+					Write your own letter below, and share the link with others who want
+					to take action.
 				</p>
 				<p class="examples">
-					<button class="linkish" type="button" id="loadExample">
-						Fill this in with the example
-					</button>
-					or
-					<button class="linkish" type="button" id="previewExample">
-						see the example as a sender would
-					</button>
+					<a href="#example" target="_blank" rel="noopener"
+						>See an example letter</a
+					>
+					(opens in a new window, so nothing here changes)
 				</p>
 
 				<form id="setupForm" novalidate>
@@ -875,6 +892,38 @@
 				</div>
 			</section>
 
+			<!-- EXAMPLE VIEW -->
+			<section id="exampleView" hidden>
+				<h1>An example letter</h1>
+				<p class="intro">
+					Copy as much or as little of this as you like into your own letter.
+					The parts in [square brackets] are for you to replace with your own
+					words.
+				</p>
+				<article class="sheet" aria-label="Example letter">
+					<dl class="envelope">
+						<dt>To</dt>
+						<dd id="ex_to"></dd>
+						<dt>Subject</dt>
+						<dd id="ex_subject"></dd>
+					</dl>
+					<div class="letter" id="ex_body"></div>
+				</article>
+				<div class="copyrow" style="margin-top: 20px">
+					<button class="btn primary small" type="button" data-excopy="body">
+						Copy the letter
+					</button>
+					<button class="btn small" type="button" data-excopy="subject">
+						Copy the subject
+					</button>
+				</div>
+				<p class="msg ok" id="exMsg" hidden></p>
+				<div class="foot">
+					Close this window when you’re done. Your own letter is still waiting
+					in the other one.
+				</div>
+			</section>
+
 			<!-- ABOUT VIEW -->
 			<section id="aboutView" class="about" hidden>
 				<h1>About Undersigned</h1>
@@ -921,7 +970,8 @@
 				</p>
 				<p>
 					I collect only limited usage analytics to understand how the app is
-					being used. The letter itself isn’t collected through those analytics.
+					being used. Neither the letter itself nor any emails are collected
+					through those analytics.
 				</p>
 				<h2>Who is it for?</h2>
 				<p>
@@ -936,6 +986,27 @@
 					straightforward way to help people take the same action.
 				</p>
 				<p><b>Undersigned turns shared concern into individual action.</b></p>
+				<h2>Who made it</h2>
+				<p>
+					I’m Jessica Del Grande, a growth and digital marketer with a
+					background in marketing, UX, and making complicated things easier to
+					use. I built Undersigned with Claude Code. I believe technology should
+					remove barriers, not create new ones, especially when it comes to
+					helping people make their voices heard.
+				</p>
+				<p>
+					You can learn more about my work on
+					<a href="https://jessicadelgrande.com" target="_blank" rel="noopener"
+						>jessicadelgrande.com</a
+					>
+					or find me on
+					<a
+						href="https://www.linkedin.com/in/jessicadelgrande"
+						target="_blank"
+						rel="noopener"
+						>LinkedIn</a
+					>.
+				</p>
 				<p class="back">
 					<button class="btn small" type="button" id="aboutBack">Back</button>
 				</p>
@@ -1241,11 +1312,23 @@
 					$("sendView").hidden = view !== "send";
 					$("setupView").hidden = view !== "setup";
 					$("aboutView").hidden = view !== "about";
+					$("exampleView").hidden = view !== "example";
+					$("aboutLink").textContent =
+						view !== "about"
+							? "About Undersigned"
+							: beforeAbout === "send"
+								? mode === "preview"
+									? "Back to the preview"
+									: "Back to the letter"
+								: beforeAbout === "example"
+									? "Back to the example"
+									: "Back to your letter";
+					$("previewResult").hidden = !(view === "send" && mode === "preview");
 					$("setupFoot").hidden = !liveCampaign;
 					window.scrollTo(0, 0);
 				}
 				$("aboutLink").addEventListener("click", function () {
-					show("about");
+					show(current === "about" ? beforeAbout : "about");
 				});
 				$("aboutBack").addEventListener("click", function () {
 					show(beforeAbout);
@@ -1340,17 +1423,7 @@
 					setBcc(!!c.bcc, false);
 					growAll();
 				}
-				$("loadExample").addEventListener("click", function () {
-					fillForm(DEMO);
-					$("result").hidden = true;
-				});
-				$("previewExample").addEventListener("click", function () {
-					campaign = DEMO;
-					mode = "demo";
-					sender = { name: "", note: "" };
-					renderSend();
-					show("send");
-				});
+
 				function setBcc(on, focus) {
 					$("bccRow").hidden = !on;
 					$("bccNoteSetup").hidden = !on;
@@ -1474,11 +1547,58 @@
 				$("linkOut").addEventListener("focus", function () {
 					this.select();
 				});
+				$("linkOut2").addEventListener("focus", function () {
+					this.select();
+				});
+				$("copyLink2").addEventListener("click", async function () {
+					var ok = await copyText($("linkOut2").value),
+						m = $("linkMsg2");
+					m.hidden = false;
+					m.className = "msg " + (ok ? "ok" : "err");
+					m.textContent = ok
+						? "Link copied."
+						: "Your browser blocked copying, so select the link above and copy it by hand.";
+				});
+
+				/* ---------- example window ---------- */
+				function renderExample() {
+					$("ex_to").textContent = DEMO.to.join(", ");
+					$("ex_subject").textContent = DEMO.subject;
+					var wrap = $("ex_body");
+					wrap.replaceChildren();
+					DEMO.body.split(/\n{2,}/).forEach(function (para) {
+						var p = document.createElement("p");
+						p.textContent = para;
+						wrap.append(p);
+					});
+					var box = document.createElement("span");
+					box.className = "namebox";
+					box.textContent = "Their name";
+					wrap.lastElementChild.append(document.createTextNode("\n"), box);
+				}
+				document.querySelectorAll("[data-excopy]").forEach(function (b) {
+					b.addEventListener("click", async function () {
+						var what = b.getAttribute("data-excopy");
+						var ok = await copyText(
+								what === "subject" ? DEMO.subject : DEMO.body,
+							),
+							m = $("exMsg");
+						m.hidden = false;
+						m.className = "msg " + (ok ? "ok" : "err");
+						m.textContent = ok
+							? what === "subject"
+								? "Subject copied."
+								: "Letter copied. Paste it into your own letter in the other window."
+							: "Your browser blocked copying, so select the text above and copy it by hand.";
+					});
+				});
 				$("previewBtn").addEventListener("click", function () {
 					if (!draft) return;
 					campaign = draft;
 					mode = "preview";
 					sender = { name: "", note: "" };
+					$("linkOut2").value = $("linkOut").value;
+					$("linkMsg2").hidden = true;
 					renderSend();
 					show("send");
 				});
@@ -1487,6 +1607,11 @@
 				async function init() {
 					var code = readCode();
 					sender = { name: "", note: "" };
+					if ((location.hash || "") === "#example") {
+						renderExample();
+						show("example");
+						return;
+					}
 					liveCampaign = null;
 					$("badLinkBanner").hidden = true;
 					if (code) {
