@@ -245,6 +245,16 @@
 			.btn[aria-disabled="true"] {
 				opacity: 1;
 			}
+			.formbuttons {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+			}
+			.bannerbuttons {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+			}
 			.btn.small {
 				padding: 8px 14px;
 				font-size: 0.9rem;
@@ -651,9 +661,14 @@
 					<p>
 						This is a preview of what people will see when they open your link.
 					</p>
-					<button class="btn small" type="button" data-go="setup-keep">
-						Back to editing
-					</button>
+					<div class="bannerbuttons">
+						<button class="btn small" type="button" data-go="setup-keep">
+							Back to editing
+						</button>
+						<button class="btn primary small" type="button" id="previewMake">
+							Make the link
+						</button>
+					</div>
 				</div>
 				<div class="result" id="previewResult" hidden style="margin: 0 0 32px">
 					<p>
@@ -864,7 +879,12 @@
 						</p>
 					</div>
 
-					<button class="btn primary" type="submit">Make the link</button>
+					<div class="formbuttons">
+						<button class="btn primary" type="submit">Make the link</button>
+						<button class="btn" type="button" id="previewFirst">
+							Preview what people will see
+						</button>
+					</div>
 				</form>
 
 				<div class="result" id="result" hidden>
@@ -1319,7 +1339,8 @@
 								: beforeAbout === "example"
 									? "Back to the example"
 									: "Back to your letter";
-					$("previewResult").hidden = !(view === "send" && mode === "preview");
+					$("previewResult").hidden = !(view === "send" && mode === "preview" && $("linkOut2").value);
+					$("previewMake").hidden = !!$("linkOut2").value;
 					$("setupFoot").hidden = !liveCampaign;
 					window.scrollTo(0, 0);
 				}
@@ -1509,6 +1530,7 @@
 						ok = false;
 					} else setErr("e_bcc");
 					if (!ok) {
+						if (current !== "setup") show("setup");
 						var first = document.querySelector(".fielderr:not([hidden])");
 						if (first) first.scrollIntoView({ block: "center" });
 						return;
@@ -1529,6 +1551,15 @@
 					$("linkMsg").hidden = true;
 					if (window.gtag)
 						gtag("event", "make_link", { bcc_used: draft.bcc ? "yes" : "no" });
+					if (current === "send" && mode === "preview") {
+						campaign = draft;
+						$("linkOut2").value = $("linkOut").value;
+						$("linkMsg2").hidden = true;
+						$("previewResult").hidden = false;
+						$("previewMake").hidden = true;
+						window.scrollTo(0, 0);
+						return;
+					}
 					$("result").scrollIntoView({ block: "nearest", behavior: "smooth" });
 				});
 				$("copyLink").addEventListener("click", async function () {
@@ -1587,6 +1618,28 @@
 								: "Letter copied. Paste it into your own letter in the other tab."
 							: "Your browser blocked copying, so select the text above and copy it by hand.";
 					});
+				});
+				$("previewFirst").addEventListener("click", function () {
+					var raw = $("f_to")
+						.value.split(/[\s,;]+/)
+						.filter(Boolean);
+					campaign = {
+						v: 1,
+						label: $("f_label").value.trim(),
+						intro: $("f_intro").value.trim(),
+						to: raw,
+						subject: $("f_subject").value.trim(),
+						body: $("f_body").value.replace(/\r\n/g, "\n").trim(),
+						bcc: !$("bccRow").hidden ? $("f_bcc").value.trim() : "",
+					};
+					mode = "preview";
+					sender = { name: "", note: "" };
+					$("linkOut2").value = "";
+					renderSend();
+					show("send");
+				});
+				$("previewMake").addEventListener("click", function () {
+					$("setupForm").requestSubmit();
 				});
 				$("previewBtn").addEventListener("click", function () {
 					if (!draft) return;
