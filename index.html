@@ -991,9 +991,6 @@
 						<button class="btn primary small" type="button" id="copyLink">
 							Copy link
 						</button>
-						<button class="btn small" type="button" id="previewBtn">
-							Preview the page
-						</button>
 					</div>
 					<p class="msg ok" id="linkMsg" hidden></p>
 				</div>
@@ -1760,17 +1757,6 @@
 				$("previewMake").addEventListener("click", function () {
 					$("setupForm").requestSubmit();
 				});
-				$("previewBtn").addEventListener("click", function () {
-					if (!draft) return;
-					campaign = draft;
-					mode = "preview";
-					sender = { name: "", note: "" };
-					$("linkOut2").value = $("linkOut").value;
-					$("linkMsg2").hidden = true;
-					renderSend();
-					show("send");
-				});
-
 				/* ---------- start ---------- */
 				async function init() {
 					var code = readCode();
