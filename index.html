@@ -389,7 +389,8 @@
 			.crow:focus-within {
 				box-shadow: inset 0 -2px 0 var(--accent);
 			}
-			.crow > label {
+			.crow > label,
+			.crow > .rowlabel {
 				flex: 0 0 4.2em;
 				color: var(--muted);
 				font-size: 0.92rem;
@@ -784,9 +785,9 @@
 				<p class="intro">
 					Undersigned makes it easier to organize a group of people around a
 					shared concern. Write a letter, add the email addresses of the people
-					who need to hear from you, and share a link. Everyone can send the
-					same letter from their own email, with the option to add a few words
-					of their own.
+					who need to hear from you, and share a link. Everyone who opens it can
+					send the same letter from their own email, with the option to add a
+					few words of their own.
 				</p>
 				<p class="intro">
 					<b
@@ -795,9 +796,9 @@
 				</p>
 				<h2>Write a letter to share</h2>
 				<p class="intro">
-					Start with the letter you want people to send. You'll add the
-					recipients, write your message, and get a link you can share with your
-					group.
+					Start by deciding who you're writing to and who should receive the
+					letter. Then write your message and preview what people will see
+					before you share the link.
 				</p>
 				<p class="examples">
 					<a href="#example" target="_blank" rel="noopener"
@@ -809,13 +810,14 @@
 				<form id="setupForm" novalidate>
 					<div class="field">
 						<label for="f_label">Who are you writing to?</label>
-						<span class="help"
+						<span class="help" id="help_label"
 							>This completes the heading people will see, which begins “Write
 							to …”.</span
 						>
 						<input
 							type="text"
 							id="f_label"
+							aria-describedby="help_label e_label"
 							placeholder="your MP, or the board of your community centre"
 						/>
 						<p class="fielderr" id="e_label" hidden></p>
@@ -828,17 +830,21 @@
 								>(optional)</span
 							></label
 						>
-						<span class="help"
+						<span class="help" id="help_intro"
 							>A sentence or two of context to explain what's happening and why
 							you're organizing. This appears above the letter.</span
 						>
-						<textarea id="f_intro" rows="3"></textarea>
+						<textarea
+							id="f_intro"
+							rows="3"
+							aria-describedby="help_intro e_intro"
+						></textarea>
 						<p class="fielderr" id="e_intro" hidden></p>
 					</div>
 
 					<div class="field">
-						<span class="label" id="h_to">Who should receive the letter?</span>
-						<span class="help"
+						<label for="f_to" id="h_to">Who should receive the letter?</label>
+						<span class="help" id="help_to"
 							>Add the email addresses of the people or organizations you want
 							everyone to contact. Each person who participates will send their
 							own email to these recipients.</span
@@ -846,9 +852,10 @@
 						<div class="sheet compose">
 							<div class="inner">
 								<div class="crow">
-									<label for="f_to">To</label>
+									<span class="rowlabel" aria-hidden="true">To</span>
 									<textarea
 										id="f_to"
+										aria-describedby="help_to e_to"
 										rows="1"
 										placeholder="Their email addresses, separated by commas"
 										spellcheck="false"
@@ -873,10 +880,9 @@
 								</div>
 								<p class="fielderr" id="e_bcc" hidden></p>
 								<p class="rownote" id="bccNoteSetup" hidden>
-									A hidden copy to you is the only way to know for certain how
-									many letters were sent. Each sender will see your address in
-									their email before they send, and the page tells them it’s
-									there.
+									A hidden copy lets you keep track of the letters sent. Each
+									sender will see your address in their email before they send,
+									and the page tells them it’s there.
 								</p>
 							</div>
 						</div>
@@ -884,7 +890,7 @@
 
 					<div class="field">
 						<label for="f_subject">Subject</label>
-						<span class="help"
+						<span class="help" id="help_subject"
 							>Choose an email subject line for everyone to use. They can change
 							it before sending.</span
 						>
@@ -894,6 +900,7 @@
 									<input
 										type="text"
 										id="f_subject"
+										aria-describedby="help_subject e_subject"
 										placeholder="Subject line"
 									/>
 								</div>
@@ -904,14 +911,18 @@
 
 					<div class="field">
 						<label for="f_body">Your letter</label>
-						<span class="help"
+						<span class="help" id="help_body"
 							>Write the message you want people to send. Leave out your own
 							name: each person will add their name at the end and can
 							personalize the message before sending.</span
 						>
 						<div class="sheet compose">
 							<div class="cbody">
-								<textarea id="f_body" placeholder="Dear …"></textarea>
+								<textarea
+									id="f_body"
+									placeholder="Dear …"
+									aria-describedby="help_body e_body"
+								></textarea>
 								<span class="namebox" aria-hidden="true">Their name</span>
 								<p class="fielderr" id="e_body" hidden></p>
 							</div>
@@ -1028,6 +1039,11 @@
 					I collect only limited usage analytics to show the number of page
 					visits and number of clicks to the Make the link button. Neither the
 					letter itself nor any emails are collected through those analytics.
+				</p>
+				<p>
+					Your letter and recipient addresses are carried in the link itself,
+					rather than stored on a server. Anyone with the link can see those
+					details, so share it only with people you trust.
 				</p>
 				<h2>Who is it for?</h2>
 				<p>
