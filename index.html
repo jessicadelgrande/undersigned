@@ -755,9 +755,9 @@
 						Write your own and share it.
 					</button>
 					<br /><span style="font-size: 0.85rem"
-						>This page uses Google Analytics to count visits and how many
-						letters are set up. Nothing you type here, and nothing in the
-						letter, is sent to it.</span
+						>This page uses Google Analytics to count visits and how many times
+						the Make the letter button is clicked. Nothing you type here, and
+						nothing in the letter, is shared with Google.</span
 					>
 				</div>
 			</section>
@@ -986,9 +986,9 @@
 					no need to store letter content on a server.
 				</p>
 				<p>
-					I collect only limited usage analytics to understand how the app is
-					being used. Neither the letter itself nor any emails are collected
-					through those analytics.
+					I collect only limited usage analytics to show the number of page
+					visits and number of clicks to the Make the link button. Neither the
+					letter itself nor any emails are collected through those analytics.
 				</p>
 				<h2>Who is it for?</h2>
 				<p>
@@ -1339,7 +1339,11 @@
 								: beforeAbout === "example"
 									? "Back to the example"
 									: "Back to your letter";
-					$("previewResult").hidden = !(view === "send" && mode === "preview" && $("linkOut2").value);
+					$("previewResult").hidden = !(
+						view === "send" &&
+						mode === "preview" &&
+						$("linkOut2").value
+					);
 					$("previewMake").hidden = !!$("linkOut2").value;
 					$("setupFoot").hidden = !liveCampaign;
 					window.scrollTo(0, 0);
