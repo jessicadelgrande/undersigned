@@ -475,6 +475,13 @@
 			.cbody .fielderr {
 				margin-top: 14px;
 			}
+			.compose > .inner {
+				margin-bottom: -1px;
+			}
+			.crow.nolabel {
+				padding-top: 8px;
+				padding-bottom: 8px;
+			}
 			.aftersheet {
 				color: var(--muted);
 				font-size: 0.9rem;
@@ -756,7 +763,7 @@
 					</button>
 					<br /><span style="font-size: 0.85rem"
 						>This page uses Google Analytics to count visits and how many times
-						the Make the letter button is clicked. Nothing you type here, and
+						the Make the link button is clicked. Nothing you type here, and
 						nothing in the letter, is shared with Google.</span
 					>
 				</div>
@@ -801,10 +808,10 @@
 
 				<form id="setupForm" novalidate>
 					<div class="field">
-						<label for="f_label">Who is the letter to?</label>
+						<label for="f_label">Who are you writing to?</label>
 						<span class="help"
-							>This complete the heading people will see, which begins “Write to
-							…”.</span
+							>This completes the heading people will see, which begins “Write
+							to …”.</span
 						>
 						<input
 							type="text"
@@ -830,60 +837,85 @@
 					</div>
 
 					<div class="field">
+						<span class="label" id="h_to">Who should receive the letter?</span>
+						<span class="help"
+							>Add the email addresses of the people or organizations you want
+							everyone to contact. Each person who participates will send their
+							own email to these recipients.</span
+						>
 						<div class="sheet compose">
-							<div class="crow">
-								<label for="f_to">To</label>
-								<textarea
-									id="f_to"
-									rows="1"
-									placeholder="Their email addresses, separated by commas"
-									spellcheck="false"
-									autocapitalize="off"
-									autocomplete="off"
-								></textarea>
-								<button class="linkish" type="button" id="addBcc">Bcc</button>
+							<div class="inner">
+								<div class="crow">
+									<label for="f_to">To</label>
+									<textarea
+										id="f_to"
+										rows="1"
+										placeholder="Their email addresses, separated by commas"
+										spellcheck="false"
+										autocapitalize="off"
+										autocomplete="off"
+									></textarea>
+									<button class="linkish" type="button" id="addBcc">Bcc</button>
+								</div>
+								<p class="fielderr" id="e_to" hidden></p>
+								<div class="crow" id="bccRow" hidden>
+									<label for="f_bcc">Bcc</label>
+									<input
+										type="email"
+										id="f_bcc"
+										placeholder="Your email address"
+										autocapitalize="off"
+										spellcheck="false"
+									/>
+									<button class="linkish" type="button" id="removeBcc">
+										Remove
+									</button>
+								</div>
+								<p class="fielderr" id="e_bcc" hidden></p>
+								<p class="rownote" id="bccNoteSetup" hidden>
+									A hidden copy to you is the only way to know for certain how
+									many letters were sent. Each sender will see your address in
+									their email before they send, and the page tells them it’s
+									there.
+								</p>
 							</div>
-							<p class="fielderr" id="e_to" hidden></p>
-							<div class="crow" id="bccRow" hidden>
-								<label for="f_bcc">Bcc</label>
-								<input
-									type="email"
-									id="f_bcc"
-									placeholder="Your email address"
-									autocapitalize="off"
-									spellcheck="false"
-								/>
-								<button class="linkish" type="button" id="removeBcc">
-									Remove
-								</button>
+						</div>
+					</div>
+
+					<div class="field">
+						<label for="f_subject">Subject</label>
+						<span class="help"
+							>Choose an email subject line for everyone to use. They can change
+							it before sending.</span
+						>
+						<div class="sheet compose">
+							<div class="inner">
+								<div class="crow nolabel">
+									<input
+										type="text"
+										id="f_subject"
+										placeholder="Subject line"
+									/>
+								</div>
+								<p class="fielderr" id="e_subject" hidden></p>
 							</div>
-							<p class="fielderr" id="e_bcc" hidden></p>
-							<p class="rownote" id="bccNoteSetup" hidden>
-								A hidden copy to you is the only way to know for certain how
-								many letters were sent. Each sender will see your address in
-								their email before they send, and the page tells them it’s
-								there.
-							</p>
-							<div class="crow">
-								<label for="f_subject">Subject</label>
-								<input type="text" id="f_subject" placeholder="Subject" />
-							</div>
-							<p class="fielderr" id="e_subject" hidden></p>
+						</div>
+					</div>
+
+					<div class="field">
+						<label for="f_body">Your letter</label>
+						<span class="help"
+							>Write the message you want people to send. Leave out your own
+							name: each person will add their name at the end and can
+							personalize the message before sending.</span
+						>
+						<div class="sheet compose">
 							<div class="cbody">
-								<textarea
-									id="f_body"
-									placeholder="Dear …"
-									aria-label="The letter"
-								></textarea>
+								<textarea id="f_body" placeholder="Dear …"></textarea>
 								<span class="namebox" aria-hidden="true">Their name</span>
 								<p class="fielderr" id="e_body" hidden></p>
 							</div>
 						</div>
-						<p class="aftersheet">
-							Stop before your own name. Each person who sends the letter adds
-							theirs where it’s highlighted, and can change anything in their
-							own email before sending.
-						</p>
 					</div>
 
 					<div class="formbuttons">
