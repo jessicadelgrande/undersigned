@@ -253,6 +253,28 @@
 				color: var(--ink);
 				max-width: 60ch;
 			}
+			.alsolabel {
+				margin: 14px 0 8px;
+				font-size: 0.95rem;
+				color: var(--muted);
+			}
+			.checkrow {
+				display: flex;
+				gap: 10px;
+				align-items: flex-start;
+				font-weight: 600;
+				margin-bottom: 4px;
+			}
+			.checkrow input {
+				width: 20px;
+				height: 20px;
+				margin: 2px 0 0;
+				accent-color: var(--accent);
+				flex: 0 0 auto;
+			}
+			.checkhelp {
+				margin-left: 30px !important;
+			}
 			.illustration .btn {
 				cursor: default;
 			}
@@ -760,16 +782,20 @@
 						<a class="btn primary" id="mailBtn" href="#"
 							>Open in my email app</a
 						>
-						<a class="btn" id="gmailBtn" href="#" target="_blank" rel="noopener"
-							>Open in Gmail</a
+					</div>
+					<p class="alsolabel" id="alsoLabel">Or open it in:</p>
+					<div class="buttons" role="group" aria-labelledby="alsoLabel">
+						<a class="btn small" id="gmailBtn" href="#" target="_blank" rel="noopener"
+							>Gmail</a
 						>
-						<a
-							class="btn"
-							id="outlookBtn"
-							href="#"
-							target="_blank"
-							rel="noopener"
-							>Open in Outlook.com</a
+						<a class="btn small" id="outlookBtn" href="#" target="_blank" rel="noopener"
+							>Outlook.com</a
+						>
+						<a class="btn small" id="officeBtn" href="#" target="_blank" rel="noopener"
+							>Outlook for work or school</a
+						>
+						<a class="btn small" id="yahooBtn" href="#" target="_blank" rel="noopener"
+							>Yahoo Mail</a
 						>
 					</div>
 					</div>
@@ -967,9 +993,30 @@
 									aria-describedby="help_body e_body"
 								></textarea>
 								<span class="namebox" aria-hidden="true">Their name</span>
+								<span id="pcMarker" hidden
+									><br /><span class="namebox" aria-hidden="true"
+										>Their postal code</span
+									></span
+								>
 								<p class="fielderr" id="e_body" hidden></p>
 							</div>
 						</div>
+					</div>
+
+					<div class="field">
+						<label class="checkrow"
+							><input
+								type="checkbox"
+								id="f_pc"
+								aria-describedby="help_pc"
+							/>
+							Ask senders for their postal code</label
+						>
+						<span class="help checkhelp" id="help_pc"
+							>Worth turning on when you’re writing to an elected official, since
+							their office may use it to confirm the writer is a constituent. Each
+							sender gets an optional box for it under their name.</span
+						>
 					</div>
 
 					<div class="formbuttons">
@@ -1210,6 +1257,7 @@
 						subject: String(obj.subject || "").slice(0, 300),
 						body: obj.body.slice(0, 12000),
 						bcc: EMAIL.test(obj.bcc || "") ? obj.bcc : "",
+						pc: !!obj.pc,
 					};
 				}
 				function readCode() {
@@ -1235,6 +1283,8 @@
 							.join("");
 					}
 					var name = sender.name.trim();
+					var postal = campaign.pc ? (sender.postal || "").trim() : "";
+					if (postal) name = name + "\n" + postal;
 					if (b.indexOf("{name}") !== -1) b = b.split("{name}").join(name);
 					else b = b.replace(/\s+$/, "") + "\n" + name;
 					return b.replace(/\n{3,}/g, "\n\n").trim();
@@ -1270,7 +1320,30 @@
 						"&body=" +
 						q(body) +
 						(bcc ? "&bcc=" + q(bcc) : "");
-					return { mail: mail, gmail: gmail, outlook: outlook, body: body };
+					var office =
+						"https://outlook.office.com/mail/deeplink/compose?to=" +
+						q(to) +
+						"&subject=" +
+						q(campaign.subject) +
+						"&body=" +
+						q(body) +
+						(bcc ? "&bcc=" + q(bcc) : "");
+					var yahoo =
+						"https://compose.mail.yahoo.com/?to=" +
+						q(to) +
+						"&subject=" +
+						q(campaign.subject) +
+						"&body=" +
+						q(body) +
+						(bcc ? "&bcc=" + q(bcc) : "");
+					return {
+						mail: mail,
+						gmail: gmail,
+						outlook: outlook,
+						office: office,
+						yahoo: yahoo,
+						body: body,
+					};
 				}
 				function isIllustration() {
 					return mode === "preview" || mode === "demo";
@@ -1279,7 +1352,7 @@
 					var h = hrefs(),
 						ready = !!sender.name.trim();
 					if (isIllustration()) {
-						["mailBtn", "gmailBtn", "outlookBtn"].forEach(function (id) {
+						["mailBtn", "gmailBtn", "outlookBtn", "officeBtn", "yahooBtn"].forEach(function (id) {
 							var a = $(id);
 							a.removeAttribute("href");
 							a.setAttribute("aria-disabled", "true");
@@ -1290,6 +1363,8 @@
 						["mailBtn", h.mail],
 						["gmailBtn", h.gmail],
 						["outlookBtn", h.outlook],
+						["officeBtn", h.office],
+						["yahooBtn", h.yahoo],
 					].forEach(function (p) {
 						var a = $(p[0]);
 						a.href = p[1];
@@ -1305,6 +1380,22 @@
 				/* ---------- rendering the letter ---------- */
 				function sizeName(input) {
 					input.size = Math.max(12, (input.value || "").length + 2);
+				}
+				function makePostalInput() {
+					var i = document.createElement("input");
+					i.type = "text";
+					i.className = "fill";
+					i.id = "senderPostal";
+					i.placeholder = "Postal code (optional)";
+					i.autocomplete = "postal-code";
+					i.setAttribute("aria-label", "Your postal code, optional");
+					i.value = sender.postal || "";
+					i.size = 22;
+					i.addEventListener("input", function () {
+						sender.postal = i.value;
+						updateLinks();
+					});
+					return i;
 				}
 				function makeNameInput() {
 					var i = document.createElement("input");
@@ -1390,6 +1481,17 @@
 						} else last.append(document.createTextNode("\n"));
 						last.append(makeNameInput());
 					}
+					if (campaign.pc) {
+						var holder = $("senderName").parentNode;
+						holder.insertBefore(
+							makePostalInput(),
+							$("senderName").nextSibling,
+						);
+						holder.insertBefore(
+							document.createTextNode("\n"),
+							$("senderPostal"),
+						);
+					}
 				}
 				function renderSend() {
 					$("buttonFrame").classList.toggle("illustration", isIllustration());
@@ -1464,7 +1566,7 @@
 				});
 
 				/* ---------- send interactions ---------- */
-				["mailBtn", "gmailBtn", "outlookBtn"].forEach(function (id) {
+				["mailBtn", "gmailBtn", "outlookBtn", "officeBtn", "yahooBtn"].forEach(function (id) {
 					$(id).addEventListener("click", function (e) {
 						if (isIllustration()) {
 							e.preventDefault();
@@ -1546,6 +1648,9 @@
 				});
 
 				/* ---------- setup ---------- */
+				$("f_pc").addEventListener("change", function () {
+					$("pcMarker").hidden = !this.checked;
+				});
 				function fillForm(c) {
 					$("f_label").value = c.label;
 					$("f_intro").value = c.intro;
@@ -1660,6 +1765,7 @@
 						subject: subject,
 						body: body,
 						bcc: bccOn ? bcc : "",
+						pc: $("f_pc").checked,
 					};
 					var code = await encode(draft);
 					$("linkOut").value = baseUrl() + "#c=" + code;
@@ -1747,6 +1853,7 @@
 						subject: $("f_subject").value.trim(),
 						body: $("f_body").value.replace(/\r\n/g, "\n").trim(),
 						bcc: !$("bccRow").hidden ? $("f_bcc").value.trim() : "",
+						pc: $("f_pc").checked,
 					};
 					mode = "preview";
 					sender = { name: "", note: "" };
